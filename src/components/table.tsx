@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField, Typography } from "@mui/material"
 import { Country } from "../App"
 import { useMemo, useState } from "react"
 
@@ -18,6 +18,7 @@ type Props = {
   data: Country[] | undefined
   isFetching: boolean
   errMsg: string
+  handleShowDialog: (i: number) => void
 }
 
 export const CountryTable = (props: Props) => {
@@ -26,7 +27,7 @@ export const CountryTable = (props: Props) => {
 
   const [page, setPage] = useState(0);
 
-  const {headCells, data, isFetching, errMsg} = props
+  const {headCells, data, isFetching, errMsg, handleShowDialog} = props
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setSearchText(e.target.value)
@@ -113,7 +114,7 @@ export const CountryTable = (props: Props) => {
                 .map((each, i) => <TableRow hover key={each.id}>
                 <TableCell>{rowPerPage * page + i + 1}</TableCell>
                 <TableCell><img src={each.flag} width={80} loading="lazy" /></TableCell>
-                <TableCell>{each.countryName}</TableCell>
+                <TableCell><Button onClick={() => handleShowDialog(rowPerPage * page + i)}>{each.countryName}</Button></TableCell>
                 <TableCell>{each.twoCharacterCountryCode}</TableCell>
                 <TableCell>{each.threeCharacterCountryCode}</TableCell>
                 <TableCell>{each.nativeCountryName}</TableCell>

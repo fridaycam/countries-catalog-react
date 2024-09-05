@@ -4,6 +4,7 @@ import './App.css';
 import { Alert, Box, Button, Stack, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import { CountryTable, HeadCell } from './components/table';
+import { CountryDetailsDialog } from './components/dialog';
 
 
 export type Country = {
@@ -33,8 +34,25 @@ export const headCells: HeadCell[] = [
 function App() {
 
   const [isFetching, setIsFetching] = useState(true)
-  const [data, setData] = useState<Country[]>()
+  const [data, setData] = useState<any[]>() // This is for original data from api, and we will use each to show in details dialog
+  const [eachData, setEachData] = useState<any>()
+
+  const [dataForTable, setDataForTable] = useState<Country[]>()
   const [errMsg, setErrMsg] = useState('Error something went wrong')
+
+  const [isOpenDetailsDialog, setIsOpenDetailsDialog] = useState(false)
+
+  const handleCloseDialog = () => {
+    setIsOpenDetailsDialog(false)
+  }
+  const handleShowDialog = (index: number) => {
+    if (data && data.length > 0) {
+      setEachData(data[index])
+      setIsOpenDetailsDialog(true)
+    } else {
+      alert('Nothing to show')
+    }
+  }
 
   const getCountries = () => {
 
@@ -64,8 +82,8 @@ function App() {
             countryCallingCodes: each.idd.root + each.idd.suffixes ? each.idd.suffixes.join('\n') : ''
           })
         })
-        if (newData.length === 0) setData(undefined)
-        else setData(newData)
+        if (newData.length === 0) { setDataForTable(undefined); setData(undefined) }
+        else { setDataForTable(newData); setData(res.data) }
         setIsFetching(false)
       } else {
         console.log('Error: get response from api with error: ', res.statusText)
@@ -88,9 +106,13 @@ function App() {
     <div className="App">
       <Box mb={8} mt={2}>
         <Typography variant='h4'>Countries Catalog</Typography>
+        {/* <Button variant='contained' onClick={handleShowDialog}>Show Details</Button> */}
       </Box>
 
-      <CountryTable headCells={headCells} data={data} isFetching={isFetching} errMsg={errMsg} />
+      <CountryTable headCells={headCells} data={dataForTable} isFetching={isFetching} errMsg={errMsg} handleShowDialog={handleShowDialog} />
+      
+      <CountryDetailsDialog isOpen={isOpenDetailsDialog} handleClose={handleCloseDialog} detailData={eachData && eachData} />
+
     </div>
   );
 }

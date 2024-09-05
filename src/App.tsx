@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Alert, Box, Button } from '@mui/material';
+import { Alert, Box, Button, Stack, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import { CountryTable, HeadCell } from './components/table';
 
@@ -19,6 +19,7 @@ export type Country = {
 
 
 export const headCells: HeadCell[] = [
+  { id: 'no', label: 'No.', width: '2%'},
   { id: 'flag', label: 'Flag' },
   { id: 'countryName', label: 'Country Name'},
   { id: 'cca2', label: '2 Character Country Code'},
@@ -37,9 +38,9 @@ function App() {
 
   const getCountries = () => {
 
-    console.log(process.env.REACT_APP_API_URL)
-
     axios.get(process.env.REACT_APP_API_URL as string).then(res => {
+    // Take only needed fields
+    // axios.get(process.env.REACT_APP_API_URL + '?fields=name,flags,cca2,cca3,altSpellings,idd').then(res => {
       setIsFetching(true)
       setErrMsg('')
       if (res.status === 200) {
@@ -77,22 +78,6 @@ function App() {
       setErrMsg('Failed to fetch country data. Plz try again')
       setIsFetching(false)
     })
-
-    // setTimeout(() => {
-    //   setIsFetching(false)
-
-    //   const eachData: Country = {
-    //     id: '1',
-    //     flag: "https://flagcdn.com/w320/gs.png",
-    //     countryName: "South Georgia and the South Sandwich Islands",
-    //     twoCharacterCountryCode: 'GS',
-    //     threeCharacterCountryCode: 'SGS',
-    //     nativeCountryName: 'South Georgia and the South Sandwich Islands',
-    //     alternativeCountryName: 'GS',
-    //     countryCallingCodes: '473'
-    //   }
-    //   setData([eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData])
-    // }, 2000)
   }
   
   useEffect(() => {
@@ -101,8 +86,8 @@ function App() {
 
   return (
     <div className="App">
-      <Box mb={8}>
-        <h2>Welcome to Countries Catalog Table</h2>
+      <Box mb={8} mt={2}>
+        <Typography variant='h4'>Countries Catalog</Typography>
       </Box>
 
       <CountryTable headCells={headCells} data={data} isFetching={isFetching} errMsg={errMsg} />

@@ -24,8 +24,8 @@ export const headCells: HeadCell[] = [
   { id: 'cca2', label: '2 Character Country Code'},
   { id: 'cca3', label: '3 Character Country Code'},
   { id: 'nativeName', label: 'Native Country Name'},
-  { id: 'altSpellings', label: 'Alternative Country Name'},
-  { id: 'idd', label: 'Country Calling Codes'}
+  { id: 'altSpellings', label: 'Alternative Country Name', width: '18%'},
+  { id: 'idd', label: 'Country Calling Codes', width: '18%'}
 ]
 
 
@@ -33,37 +33,66 @@ function App() {
 
   const [isFetching, setIsFetching] = useState(true)
   const [data, setData] = useState<Country[]>()
-  const [errMsg, setErrMsg] = useState('')
+  const [errMsg, setErrMsg] = useState('Error something went wrong')
 
   const getCountries = () => {
 
-    // axios.get(process.env.REACT_APP_API_URL as string).then(res => {
-    //   if (res.status === 200) {
+    console.log(process.env.REACT_APP_API_URL)
 
-    //   } else {
-    //     console.log('Error: get response from api with error: ', res.statusText)
-    //   }
-    //   console.log(res)
-    // }).catch(err => {
-    //   console.log('Error: cannot fetch data from api: ', err)
-    //   setData(undefined)
-    // })
+    axios.get(process.env.REACT_APP_API_URL as string).then(res => {
+      setIsFetching(true)
+      setErrMsg('')
+      if (res.status === 200) {
+        // Get needed property only
+        const newData: Country[] = []
+        res.data.map((each: any) => {
+          newData.push({
+            id: each.cca2 + each.ccn3 + each.cca3,
+            flag: each.flags.png,
 
-    setTimeout(() => {
-      setIsFetching(false)
+            countryName: each.name && each.name.official ? each.name.official : '',
 
-      const eachData: Country = {
-        id: '1',
-        flag: "https://flagcdn.com/w320/gs.png",
-        countryName: "South Georgia and the South Sandwich Islands",
-        twoCharacterCountryCode: 'GS',
-        threeCharacterCountryCode: 'SGS',
-        nativeCountryName: 'South Georgia and the South Sandwich Islands',
-        alternativeCountryName: 'GS',
-        countryCallingCodes: '473'
+            twoCharacterCountryCode: each.cca2,
+            threeCharacterCountryCode: each.cca3,
+
+            nativeCountryName: each.name.nativeName
+              && each.name.nativeName.eng
+              && each.name.nativeName.eng.official ? each.name.nativeName.eng.official : '',
+
+            alternativeCountryName: each.altSpellings ? each.altSpellings.join('\n') : '',
+            countryCallingCodes: each.idd.root + each.idd.suffixes ? each.idd.suffixes.join('\n') : ''
+          })
+        })
+        if (newData.length === 0) setData(undefined)
+        else setData(newData)
+        setIsFetching(false)
+      } else {
+        console.log('Error: get response from api with error: ', res.statusText)
+        setErrMsg('Failed data with response error. Plz try again')
+        setIsFetching(false)
       }
-      setData([eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData])
-    }, 2000)
+      console.log(res)
+    }).catch(err => {
+      console.log('Error: cannot fetch data from api: ', err)
+      setErrMsg('Failed to fetch country data. Plz try again')
+      setIsFetching(false)
+    })
+
+    // setTimeout(() => {
+    //   setIsFetching(false)
+
+    //   const eachData: Country = {
+    //     id: '1',
+    //     flag: "https://flagcdn.com/w320/gs.png",
+    //     countryName: "South Georgia and the South Sandwich Islands",
+    //     twoCharacterCountryCode: 'GS',
+    //     threeCharacterCountryCode: 'SGS',
+    //     nativeCountryName: 'South Georgia and the South Sandwich Islands',
+    //     alternativeCountryName: 'GS',
+    //     countryCallingCodes: '473'
+    //   }
+    //   setData([eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData, eachData])
+    // }, 2000)
   }
   
   useEffect(() => {
@@ -76,7 +105,7 @@ function App() {
         <h2>Welcome to Countries Catalog Table</h2>
       </Box>
 
-      <CountryTable headCells={headCells} data={data} isFetching={isFetching} />
+      <CountryTable headCells={headCells} data={data} isFetching={isFetching} errMsg={errMsg} />
     </div>
   );
 }

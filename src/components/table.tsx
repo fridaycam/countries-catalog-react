@@ -18,7 +18,7 @@ type Props = {
   data: Country[] | undefined
   isFetching: boolean
   errMsg: string
-  handleShowDialog: (i: number) => void
+  handleShowDialog: (each: Country) => void
 }
 
 export const CountryTable = (props: Props) => {
@@ -35,7 +35,7 @@ export const CountryTable = (props: Props) => {
   }
 
   const filteredData = data && data.filter(each =>
-    each.countryName.toLowerCase().includes(searchText.toLowerCase())
+    each.name.official.toLowerCase().includes(searchText.toLowerCase())
     // || other fields can go here
   )
 
@@ -106,20 +106,20 @@ export const CountryTable = (props: Props) => {
 
               : filteredData && filteredData
                 .sort((a, b) => {
-                  if (a.countryName > b.countryName) return order === 'asc' ? 1 : -1
-                  if (a.countryName < b.countryName) return order === 'asc' ? -1 : 1
+                  if (a.name.official > b.name.official) return order === 'asc' ? 1 : -1
+                  if (a.name.official < b.name.official) return order === 'asc' ? -1 : 1
                   return 0
                 })
                 .slice(page * rowPerPage, page * rowPerPage + rowPerPage)
-                .map((each, i) => <TableRow hover key={each.id}>
+                .map((each, i) => <TableRow hover key={each.cca2 + each.ccn3 + each.cca3}>
                 <TableCell>{rowPerPage * page + i + 1}</TableCell>
-                <TableCell><img src={each.flag} width={80} loading="lazy" /></TableCell>
-                <TableCell><Button onClick={() => handleShowDialog(rowPerPage * page + i)}>{each.countryName}</Button></TableCell>
-                <TableCell>{each.twoCharacterCountryCode}</TableCell>
-                <TableCell>{each.threeCharacterCountryCode}</TableCell>
-                <TableCell>{each.nativeCountryName}</TableCell>
-                <TableCell>{each.alternativeCountryName}</TableCell>
-                <TableCell>{each.countryCallingCodes}</TableCell>
+                <TableCell>{each.flags && each.flags.png && <img src={each.flags.png} width={80} loading="lazy" alt={each.flags.alt ? each.flags.alt : 'Country Flag'} />}</TableCell>
+                <TableCell><Button style={{ textAlign: 'left' }} onClick={() => handleShowDialog(each)}>{each.name.official}</Button></TableCell>
+                <TableCell>{each.cca2}</TableCell>
+                <TableCell>{each.cca3}</TableCell>
+                <TableCell>{each.name.nativeName && each.name.nativeName[Object.keys(each.name.nativeName)[0]].official}</TableCell>
+                <TableCell>{each.altSpellings && each.altSpellings[0]}</TableCell>
+                <TableCell>{each.idd && each.idd.root}{each.idd.suffixes && each.idd.suffixes.join(' ')}</TableCell>
               </TableRow>)
             }
           </TableBody>

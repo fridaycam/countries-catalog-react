@@ -1,6 +1,6 @@
 import { Box, Button, CircularProgress, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField, Typography } from "@mui/material"
 import { Country } from "../App"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 
 export type HeadCell = {
   id: string
